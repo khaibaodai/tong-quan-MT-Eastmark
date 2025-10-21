@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích Chuyên Sâu Dự Án MT Eastmark City (7P)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Modern Real Estate -->
+    <!-- Application Structure Plan: Ứng dụng được cấu trúc theo mô hình 7P Marketing Mix, một phương pháp luận quen thuộc và hiệu quả cho các chuyên viên marketing và sales BĐS. Cấu trúc này giúp người dùng hệ thống hóa thông tin và áp dụng trực tiếp vào công việc: từ việc hiểu sâu sản phẩm (Product), giá và PTTT (Price), vị trí (Place), đến việc xây dựng chiến lược tiếp thị (Promotion), hiểu rõ đội ngũ (People), quy trình (Process) và các bằng chứng hữu hình (Physical Evidence). Thay vì trình bày tuyến tính như tài liệu gốc, cấu trúc này cho phép khám phá thông tin theo mục đích công việc, với các thành phần tương tác như biểu đồ so sánh, tabs chọn PTTT, danh sách vật liệu bàn giao chi tiết, giúp chuyển hóa dữ liệu thô thành insights bán hàng. -->
+    <!-- Visualization & Content Choices: 1. So sánh giá (Bar Chart): Hiển thị giá MT Eastmark so với khu vực, giúp sales có luận điểm về tính cạnh tranh (Mục tiêu: So sánh). 2. Cơ cấu sản phẩm (Donut Chart): Cho thấy tỷ lệ các loại căn hộ, giúp định hình khách hàng mục tiêu (Mục tiêu: Thông tin). 3. PTTT (Tabs tương tác): Trực quan hóa các lựa chọn thanh toán, công cụ quan trọng khi tư vấn (Mục tiêu: Sắp xếp). 4. Tiện ích & Vật liệu (Grid/List tương tác): Trình bày các điểm mạnh sản phẩm một cách rõ ràng (Mục tiêu: Thông tin, Bằng chứng). 5. Quy trình bán hàng (Sơ đồ HTML/CSS): Giúp sales và khách hàng nắm rõ các bước (Mục tiêu: Sắp xếp). 6. Hỏi & Đáp (List có thể tìm kiếm): Công cụ tra cứu nhanh cho các tình huống thực tế (Mục tiêu: Tương tác). Các lựa chọn này đều dùng Chart.js (Canvas) và JS thuần, không dùng SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            border-bottom-color: #1e40af;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-800">Phân Tích Chuyên Sâu & Công Cụ Bán Hàng</h1>
+            <h2 class="text-5xl md:text-6xl font-extrabold text-blue-900 mt-2">MT EASTMARK CITY</h2>
+            <p class="mt-4 text-lg text-gray-600">Ứng dụng mô hình 7P Marketing cho Performance & Sales</p>
+        </header>
+
+        <nav class="sticky top-0 bg-white/80 backdrop-blur-sm z-10 shadow-md rounded-lg mb-8">
+            <div class="overflow-x-auto">
+                <ul class="flex justify-center items-center p-2 space-x-2 md:space-x-4 text-sm md:text-base whitespace-nowrap">
+                    <li><a href="#p1" class="nav-link active px-3 py-2">1. Product</a></li>
+                    <li><a href="#p2" class="nav-link px-3 py-2">2. Price</a></li>
+                    <li><a href="#p3" class="nav-link px-3 py-2">3. Place</a></li>
+                    <li><a href="#p4" class="nav-link px-3 py-2">4. Promotion</a></li>
+                    <li><a href="#p5" class="nav-link px-3 py-2">5. People</a></li>
+                    <li><a href="#p6" class="nav-link px-3 py-2">6. Process</a></li>
+                    <li><a href="#p7" class="nav-link px-3 py-2">7. Physical Evidence</a></li>
+                    <li><a href="#p8" class="nav-link px-3 py-2">8. Khuyến Nghị</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main id="main-content" class="space-y-12">
+
+            <!-- P1: Product -->
+            <section id="p1" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P1: Product - Sản Phẩm</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Phân tích chi tiết về sản phẩm cốt lõi, từ quy mô, thiết kế, tiện ích đến các loại hình căn hộ. Đây là nền tảng để xây dựng mọi thông điệp bán hàng.</p>
+                </div>
+                
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Tổng Quan Dự Án</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Chủ đầu tư:</strong> Công ty TNHH XD & KD Nhà Điền Phúc Thành</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Tổng thầu:</strong> Phước Thành</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Thiết kế kiến trúc:</strong> Green Design</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Đơn vị quản lý:</strong> Savills</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Quy mô:</strong> 14.9 ha (Tổng khu), 2 ha (Khu căn hộ Eastmark 1)</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Số block:</strong> 5 (A, B, C, D, E) - Eastmark 1</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Số lượng:</strong> 1.157 căn hộ, 95 office, 118 shophouse</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Pháp lý:</strong> Sổ hồng riêng từng căn, sở hữu lâu dài</div>
+                        <div class="bg-blue-50 p-4 rounded-lg"><strong>Bàn giao:</strong> Hoàn thiện cơ bản (Quý 3/2024)</div>
+                    </div>
+                </div>
+
+                <div class="section-card p-6">
+                     <h3 class="text-xl font-bold mb-4">Các Loại Hình Căn Hộ</h3>
+                     <div id="apartment-tabs" class="flex flex-wrap gap-2 mb-4">
+                         <button data-type="1pn" class="tab-button active px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">1PN+1 (63-65m²)</button>
+                         <button data-type="2pn" class="tab-button px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">2PN (73-80m²)</button>
+                         <button data-type="3pn" class="tab-button px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">3PN (96-100m²)</button>
+                         <button data-type="duplex" class="tab-button px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">Duplex (135-195m²)</button>
+                     </div>
+                     <div id="apartment-details" class="bg-gray-50 p-4 rounded-lg fade-in">
+                         <!-- Details will be injected by JS -->
+                     </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4">Tiện Ích Nội Khu Đa Dạng</h3>
+                        <p class="mb-4 text-gray-600">Hệ thống tiện ích được thiết kế để phục vụ mọi nhu cầu sống, làm việc và giải trí của cư dân.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> Hồ bơi người lớn & trẻ em (1.700m²)</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> Công viên ven sông (4.500m²)</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> Vườn BBQ, khu thể thao ngoài trời</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> Phòng Gym, Yoga, Cafe, nhà hàng</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> Trường mầm non, khu vui chơi trẻ em</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✔</span> An ninh 24/7, camera giám sát</li>
+                        </ul>
+                    </div>
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4">Tiện Ích Ngoại Khu Kết Nối</h3>
+                         <p class="mb-4 text-gray-600">Trong bán kính 5-15 phút, cư dân dễ dàng tiếp cận các tiện ích hàng đầu của TP. Thủ Đức.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center"><span class="text-blue-500 mr-3">➤</span> Khu Công nghệ cao TP.HCM</li>
+                            <li class="flex items-center"><span class="text-blue-500 mr-3">➤</span> Bệnh viện Lê Văn Việt, Bệnh viện Ung Bướu 2</li>
+                            <li class="flex items-center"><span class="text-blue-500 mr-3">➤</span> Đại học Fulbright, FPT, HUTECH</li>
+                            <li class="flex items-center"><span class="text-blue-500 mr-3">➤</span> Vincom Grand Park, Giga Mall</li>
+                            <li class="flex items-center"><span class="text-blue-500 mr-3">➤</span> Sân Golf Thủ Đức, Khu du lịch Suối Tiên</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P2: Price -->
+            <section id="p2" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P2: Price - Giá & Chính Sách</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Phân tích mức giá trong bối cảnh thị trường và các phương thức thanh toán linh hoạt, là "chìa khóa" chốt sales quan trọng nhất.</p>
+                </div>
+                
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-center">So Sánh Giá Bán Khu Vực TP. Thủ Đức (2025)</h3>
+                     <p class="text-center text-gray-600 mb-4">MT Eastmark City có mức giá cạnh tranh vượt trội, là cơ hội hiếm có cho cả nhà đầu tư và người mua ở thực.</p>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4">Ước Tính Giá Trị & Dòng Tiền</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="apartmentArea" class="block text-sm font-medium text-gray-700">Diện tích (m²)</label>
+                                <input type="number" id="apartmentArea" value="73" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="pricePerSqm" class="block text-sm font-medium text-gray-700">Đơn giá (triệu/m²)</label>
+                                <input type="number" id="pricePerSqm" value="45" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-lg text-blue-800">Tổng giá trị (dự kiến):</h4>
+                            <p id="totalPrice" class="text-3xl font-bold text-blue-900">3,285 tỷ</p>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <p class="flex justify-between">Vốn tự có (15%): <span id="initialPayment" class="font-semibold">493 triệu</span></p>
+                                <p class="flex justify-between">Ngân hàng hỗ trợ (80%): <span id="loanAmount" class="font-semibold">2,628 tỷ</span></p>
+                                <p class="flex justify-between">Nhận sổ (5%): <span id="finalPayment" class="font-semibold">164 triệu</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4">Biểu Đồ Dòng Tiền (PTTT Vay)</h3>
+                        <p class="text-gray-600 text-sm mb-4">Trực quan hóa số tiền cần thanh toán tại các thời điểm quan trọng, giúp khách hàng dễ dàng chuẩn bị tài chính.</p>
+                        <div class="chart-container h-72">
+                            <canvas id="cashFlowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4">3 Lựa Chọn Thanh Toán Linh Hoạt</h3>
+                     <div id="payment-tabs" class="flex flex-wrap gap-2 mb-4">
+                        <button data-type="pttt1" class="tab-button active px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">PTTT 01: Vay Ngân Hàng</button>
+                        <button data-type="pttt2" class="tab-button px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">PTTT 02: Chuẩn</button>
+                        <button data-type="pttt3" class="tab-button px-4 py-2 text-sm font-semibold bg-gray-200 rounded-full">PTTT 03: Nhanh</button>
+                    </div>
+                    <div id="payment-details" class="bg-gray-50 p-6 rounded-lg fade-in">
+                        <!-- Details will be injected by JS -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P3: Place -->
+            <section id="p3" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P3: Place - Vị Trí & Phân Phối</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Vị trí là yếu tố quyết định tiềm năng tăng giá. MT Eastmark City sở hữu vị trí chiến lược đón đầu hạ tầng tương lai.</p>
+                </div>
+                
+                 <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Vị Trí "Tam Giác Vàng" - Giao Lộ Tương Lai</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <p class="mb-4 text-gray-600">Tọa lạc tại phường Long Trường, TP. Thủ Đức, dự án nằm ngay tâm điểm của 3 trục giao thông huyết mạch:</p>
+                            <ul class="space-y-3">
+                                <li class="flex items-start"><span class="text-orange-500 font-bold mr-3 mt-1">1</span><div><strong>Đường Vành Đai 3:</strong> Trục kết nối liên vùng, đi sân bay Long Thành, các tỉnh miền Tây và Đông Nam Bộ.</div></li>
+                                <li class="flex items-start"><span class="text-orange-500 font-bold mr-3 mt-1">2</span><div><strong>Đường Trường Lưu (hiện hữu):</strong> Kết nối trực tiếp ra Nguyễn Duy Trinh và các khu dân cư sầm uất.</div></li>
+                                <li class="flex items-start"><span class="text-orange-500 font-bold mr-3 mt-1">3</span><div><strong>Đường Lò Lu nối dài:</strong> Mở rộng kết nối đến khu công nghệ cao và các trục đường chính.</div></li>
+                            </ul>
+                            <p class="mt-4 text-gray-600 font-semibold">Đây là vị trí bảo chứng cho tiềm năng tăng giá bền vững khi hạ tầng hoàn thiện.</p>
+                        </div>
+                        <div class="bg-gray-200 h-64 md:h-80 rounded-lg flex items-center justify-center text-gray-500">
+                             <span class="text-center font-bold text-xl">Sơ Đồ Vị Trí<br/>(Minh Họa)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P4: Promotion -->
+            <section id="p4" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P4: Promotion - Xúc Tiến & USP</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Xác định các điểm bán hàng độc nhất (USP) và chân dung khách hàng mục tiêu để xây dựng chiến dịch quảng cáo hiệu quả.</p>
+                </div>
+
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Điểm Bán Hàng Độc Nhất (Unique Selling Points)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Nhà Thật - Giá Trị Thật</h4>
+                            <p class="text-sm text-gray-600">Dự án đã cất nóc, pháp lý hoàn chỉnh, sổ hồng từng căn. Khách hàng mua là nhận nhà ở ngay, không rủi ro chờ đợi.</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Vị Trí Đón Đầu Tương Lai</h4>
+                            <p class="text-sm text-gray-600">Ôm trọn Vành Đai 3, tâm điểm kết nối liên vùng, đảm bảo tiềm năng tăng giá vượt trội khi hạ tầng hoàn thiện.</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Giá Cạnh Tranh Nhất</h4>
+                            <p class="text-sm text-gray-600">Mức giá chỉ từ 4x triệu/m² là vô cùng hấp dẫn so với mặt bằng chung khu vực (70-140 triệu/m²).</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Sống "Xanh" An Nhiên</h4>
+                            <p class="text-sm text-gray-600">Mật độ xây dựng thấp, 3 mặt giáp sông, công viên ven sông rộng lớn mang lại không gian sống trong lành.</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Tiện Ích "All-in-one"</h4>
+                            <p class="text-sm text-gray-600">Hệ sinh thái tiện ích đầy đủ từ giáo dục, mua sắm, giải trí đến thể thao ngay ngưỡng cửa.</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold">Cộng Đồng Tri Thức</h4>
+                            <p class="text-sm text-gray-600">Liền kề Khu Công nghệ cao, thu hút cộng đồng chuyên gia, kỹ sư trong và ngoài nước đến sinh sống và làm việc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4 text-center">Chân Dung Khách Hàng Mục Tiêu</h3>
+                        <ul class="space-y-4">
+                            <li><strong>Gia đình trẻ & chuyên gia:</strong> Làm việc tại Khu CNC, Q2, Q1. Cần không gian sống chất lượng, tiện ích cho con cái và có tích lũy tài chính tốt. Phù hợp căn 2PN.</li>
+                            <li><strong>Nhà đầu tư cho thuê:</strong> Nhắm đến nguồn khách thuê dồi dào là các chuyên gia nước ngoài tại Khu CNC. Tỷ suất lợi nhuận cho thuê dự kiến hấp dẫn. Phù hợp căn 1PN+1.</li>
+                            <li><strong>Nhà đầu tư trung & dài hạn:</strong> Đón sóng hạ tầng Vành Đai 3, sân bay Long Thành. Kì vọng lợi nhuận từ sự tăng giá đất và BĐS khu vực.</li>
+                            <li><strong>Gia đình đa thế hệ:</strong> Cần không gian sống rộng rãi, trong lành, nhiều tiện ích cho người lớn tuổi và trẻ em. Phù hợp căn 3PN.</li>
+                        </ul>
+                    </div>
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4 text-center">Cơ Cấu Sản Phẩm</h3>
+                        <p class="text-center text-gray-600 mb-4">Tỷ lệ các loại hình căn hộ được phân bổ hợp lý để đáp ứng đa dạng nhu cầu.</p>
+                        <div class="chart-container h-64 md:h-72">
+                            <canvas id="productMixChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P5: People -->
+            <section id="p5" class="page-section">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P5: People - Con Người</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Sự uy tín của các đối tác tham gia là bảo chứng vững chắc cho chất lượng và tiến độ của dự án.</p>
+                </div>
+                <div class="section-card p-6 mt-8">
+                    <h3 class="text-xl font-bold mb-6 text-center">Đội Ngũ Phát Triển Dự Án Uy Tín</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                        <div class="space-y-2">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center font-bold text-gray-600">Logo</div>
+                            <h4 class="font-bold">Điền Phúc Thành</h4>
+                            <p class="text-sm text-gray-500">Chủ đầu tư với hơn 20 năm kinh nghiệm, uy tín qua các dự án như Centana Thủ Thiêm, Precia, D'Lusso...</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center font-bold text-gray-600">Logo</div>
+                            <h4 class="font-bold">Phước Thành</h4>
+                            <p class="text-sm text-gray-500">Tổng thầu xây dựng hàng đầu, đảm bảo chất lượng và tiến độ thi công cho nhiều dự án lớn.</p>
+                        </div>
+                        <div class="space-y-2">
+                             <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center font-bold text-gray-600">Logo</div>
+                            <h4 class="font-bold">Green Design</h4>
+                            <p class="text-sm text-gray-500">Đơn vị thiết kế kiến trúc mang đến không gian sống xanh, hiện đại và tối ưu công năng.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center font-bold text-gray-600">Logo</div>
+                            <h4 class="font-bold">Savills</h4>
+                            <p class="text-sm text-gray-500">Đơn vị quản lý vận hành quốc tế, đảm bảo chất lượng sống và dịch vụ chuyên nghiệp cho cư dân.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P6: Process -->
+            <section id="p6" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P6: Process - Quy Trình</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Sự minh bạch và rõ ràng trong quy trình mua bán giúp xây dựng niềm tin và mang lại trải nghiệm tốt nhất cho khách hàng.</p>
+                </div>
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-6 text-center">Quy Trình Mua Bán Chung</h3>
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl">1</div>
+                            <p class="mt-2 font-semibold">Booking</p>
+                        </div>
+                        <div class="w-20 h-1 bg-gray-300 hidden md:block"></div>
+                        <div class="h-10 w-1 bg-gray-300 md:hidden"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl">2</div>
+                            <p class="mt-2 font-semibold">HĐ Đặt Cọc</p>
+                        </div>
+                         <div class="w-20 h-1 bg-gray-300 hidden md:block"></div>
+                         <div class="h-10 w-1 bg-gray-300 md:hidden"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl">3</div>
+                            <p class="mt-2 font-semibold">HĐMB Công Chứng</p>
+                        </div>
+                         <div class="w-20 h-1 bg-gray-300 hidden md:block"></div>
+                         <div class="h-10 w-1 bg-gray-300 md:hidden"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl">4</div>
+                            <p class="mt-2 font-semibold">Bàn Giao Nhà</p>
+                        </div>
+                         <div class="w-20 h-1 bg-gray-300 hidden md:block"></div>
+                         <div class="h-10 w-1 bg-gray-300 md:hidden"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl">5</div>
+                            <p class="mt-2 font-semibold">Bàn Giao Sổ Hồng</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Hỏi & Đáp Nhanh (Q&A)</h3>
+                    <input type="text" id="qaSearch" placeholder="Tìm kiếm câu hỏi..." class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div id="qa-list" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        <!-- Q&A content will be injected by JS -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- P7: Physical Evidence -->
+            <section id="p7" class="page-section">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P7: Physical Evidence - Bằng Chứng Hữu Hình</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Những yếu tố hữu hình củng cố niềm tin của khách hàng, từ pháp lý, chất lượng bàn giao đến nhà mẫu thực tế.</p>
+                </div>
+                 <div class="section-card p-6 mt-8">
+                    <h3 class="text-xl font-bold mb-4">Danh Mục Vật Liệu Bàn Giao Chi Tiết</h3>
+                     <p class="mb-6 text-gray-600">Dự án bàn giao hoàn thiện với các trang thiết bị từ những thương hiệu uy tín, thể hiện cam kết về chất lượng.</p>
+                     <div id="handover-materials" class="space-y-6">
+                        <!-- Materials will be injected by JS -->
+                     </div>
+                 </div>
+            </section>
+
+            <!-- P8: Recommendations -->
+            <section id="p8" class="page-section space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-blue-900">P8: Đề Xuất & Khuyến Nghị</h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl mx-auto">Từ những phân tích trên, đây là các đề xuất chiến lược dành cho Marketing Performance và Sales để tối ưu hóa hiệu quả.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4">Chiến Lược Hành Động</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="font-bold text-blue-700">Đối với Marketing Performance:</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-700">
+                                    <li><strong>Targeting:</strong> Tập trung vào các đối tượng làm việc tại Khu CNC, chuyên gia nước ngoài, gia đình trẻ có thu nhập tốt tại TP. Thủ Đức. Chạy quảng cáo re-targeting các tệp đã tương tác với các dự án lân cận.</li>
+                                    <li><strong>Content Angle:</strong> Nhấn mạnh 3 USP chính: "Giá Tốt Nhất Khu Vực", "Nhận Nhà Ở Ngay - Pháp Lý Sổ Hồng" và "Liền Kề Vành Đai 3". Tạo nội dung so sánh trực quan với các dự án khác.</li>
+                                    <li><strong>Kênh:</strong> Ưu tiên Facebook Ads, Google Search (từ khóa "căn hộ Thủ Đức", "mua nhà gần khu công nghệ cao"), và các diễn đàn BĐS uy tín.</li>
+                                </ul>
+                            </div>
+                             <div>
+                                <h4 class="font-bold text-green-700">Đối với Sales:</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-700">
+                                    <li><strong>Kịch bản tư vấn:</strong> Xây dựng kịch bản xoay quanh bài toán tài chính. Sử dụng công cụ tính giá và PTTT để cho thấy tính "vừa sức" của sản phẩm.</li>
+                                    <li><strong>Xử lý từ chối:</strong> Lường trước các câu hỏi về vị trí "xa trung tâm". Luận điểm phản biện: Vị trí của tương lai, đón đầu hạ tầng Vành Đai 3, kết nối thẳng tới sân bay và trung tâm mới.</li>
+                                    <li><strong>Chốt sales:</strong> Nhấn mạnh sự khan hiếm của sản phẩm "sẵn có, pháp lý sạch" trên thị trường. Yếu tố "an toàn tuyệt đối" là đòn bẩy cảm xúc mạnh nhất để khách hàng ra quyết định.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="section-card p-6">
+                        <h3 class="text-xl font-bold mb-4 text-center">Biểu Đồ Radar Rủi Ro Đầu Tư</h3>
+                        <p class="text-center text-gray-600 mb-4 text-sm">Đánh giá các rủi ro tiềm năng trên thang điểm 5 (1: Rất thấp, 5: Rất cao). MT Eastmark City thể hiện là một lựa chọn đầu tư an toàn vượt trội.</p>
+                        <div class="chart-container">
+                            <canvas id="riskRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t border-gray-200">
+            <p class="text-gray-500">Tài liệu phân tích được tổng hợp cho mục đích đào tạo và nghiên cứu nội bộ.</p>
+            <p class="text-sm text-gray-400">Dữ liệu cập nhật đến Tháng 10/2025.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data
+            const apartmentData = {
+                '1pn': {
+                    title: 'Căn hộ 1PN+1 (Diện tích 63m² - 65m²)',
+                    description: 'Thiết kế thông minh với không gian "+1" linh hoạt, có thể làm phòng làm việc, phòng đọc sách hoặc phòng ngủ nhỏ. Phù hợp cho người độc thân, cặp đôi trẻ hoặc nhà đầu tư cho thuê.',
+                    features: ['1 Phòng ngủ', '1 Phòng đa năng', '1 WC', 'Phòng khách & Bếp', 'Logia']
+                },
+                '2pn': {
+                    title: 'Căn hộ 2PN (Diện tích 73m² - 80m²)',
+                    description: 'Là loại hình chủ đạo, thiết kế vuông vức, tối ưu công năng, tất cả các phòng đều có cửa sổ đón sáng tự nhiên. Sự lựa chọn lý tưởng cho các gia đình trẻ có 1-2 con.',
+                    features: ['2 Phòng ngủ', '2 WC', 'Phòng khách & Bếp', 'Logia & Sân phơi']
+                },
+                '3pn': {
+                    title: 'Căn hộ 3PN (Diện tích 96m² - 100m²)',
+                    description: 'Là căn góc với 2 mặt thoáng, tầm nhìn rộng mở. Không gian rộng rãi cho các gia đình đa thế hệ, đảm bảo sự riêng tư và thoải mái.',
+                    features: ['3 Phòng ngủ', '2 WC', 'Phòng khách & Bếp lớn', 'Logia & Sân phơi']
+                },
+                'duplex': {
+                    title: 'Căn hộ Duplex (Diện tích 135m² - 195m²)',
+                    description: 'Không gian sống đẳng cấp, sang trọng như một căn biệt thự trên không. Tầm nhìn panorama toàn cảnh, thể hiện vị thế của gia chủ.',
+                    features: ['Thiết kế thông tầng', 'Sân vườn riêng', 'Không gian sống rộng lớn', 'Số lượng giới hạn']
+                }
+            };
+            
+            const paymentData = {
+                'pttt1': {
+                    title: 'Phương Án 1: Hỗ Trợ Vay Ngân Hàng',
+                    description: 'Giải pháp tối ưu cho khách hàng cần hỗ trợ tài chính, chỉ cần vốn tự có ban đầu thấp.',
+                    steps: [
+                        { stage: 'HĐ Cọc', percentage: '15%' },
+                        { stage: 'HĐMB Công chứng (12/2025)', percentage: 'Ngân hàng giải ngân 80%' },
+                        { stage: 'Nhận sổ hồng', percentage: '5%' }
+                    ]
+                },
+                'pttt2': {
+                    title: 'Phương Án 2: Thanh Toán Chuẩn',
+                    description: 'Thanh toán theo tiến độ chuẩn, giúp khách hàng chủ động dòng tiền.',
+                     steps: [
+                        { stage: 'HĐ Cọc', percentage: '15%' },
+                        { stage: 'Đợt 1 (Sau 3 tháng)', percentage: '20%' },
+                        { stage: 'Đợt 2 (Sau 3 tháng)', percentage: '30%' },
+                        { stage: 'HĐMB Công chứng', percentage: '30%' },
+                        { stage: 'Nhận sổ hồng', percentage: '5%' }
+                    ]
+                },
+                'pttt3': {
+                    title: 'Phương Án 3: Thanh Toán Nhanh',
+                    description: 'Dành cho khách hàng có sẵn tài chính, thường đi kèm chính sách chiết khấu tốt nhất.',
+                     steps: [
+                        { stage: 'HĐ Cọc', percentage: '15%' },
+                        { stage: 'Đợt 1', percentage: '10%' },
+                        { stage: 'Đợt 2', percentage: '10%' },
+                        { stage: 'Đợt 3', percentage: '10%' },
+                        { stage: 'Đợt 4', percentage: '10%' },
+                        { stage: 'Đợt 5', percentage: '20%' },
+                        { stage: 'HĐMB Công chứng', percentage: '20%' },
+                        { stage: 'Nhận sổ hồng', percentage: '5%' }
+                    ]
+                }
+            };
+            
+            const qaData = [
+                { q: 'Phí quản lý dự kiến là bao nhiêu?', a: 'Dự kiến 12.000đ/m² (chưa VAT), phí xe máy 120.000đ/tháng, ô tô 1.200.000đ/tháng.' },
+                { q: 'Dự án có bao nhiêu thang máy mỗi tháp?', a: 'Tháp A,B,C,D có 4 thang/tháp. Tháp E có 6 thang.' },
+                { q: 'Người nước ngoài có được mua không?', a: 'Không, người nước ngoài không được phép mua căn hộ tại dự án này.' },
+                { q: 'Thời hạn bảo hành căn hộ?', a: '5 năm cho kết cấu, kiến trúc. Các thiết bị khác bảo hành theo nhà sản xuất.' },
+                { q: 'Căn hộ đã có sổ hồng từng căn chưa?', a: 'Đã có sổ hồng từng căn, hợp đồng mua bán sẽ được công chứng.' },
+                { q: 'Thời gian ra sổ sau công chứng là bao lâu?', a: 'Tối đa 10 ngày làm việc sau khi nộp đủ hồ sơ, có thể kéo dài hơn (tối đa 20-23 ngày) do các yếu tố khác.' },
+                { q: 'Dự án có camera an ninh không?', a: 'Có camera giám sát tại các khu vực chung, hành lang và thang máy.' },
+                { q: 'Độ cao trần căn hộ là bao nhiêu?', a: 'Phòng khách, phòng ăn, phòng ngủ: 2.85m. Phòng bếp, vệ sinh: 2.5m.' },
+                { q: 'Ban công có được lắp lưới an toàn không?', a: 'Được phép lắp đặt nhưng phải theo mẫu quy định của BQL để đảm bảo mỹ quan.' },
+            ];
+
+            const handoverData = [
+                {
+                    category: 'Sàn',
+                    items: [
+                        { name: 'Phòng ngủ', spec: 'Sàn gỗ công nghiệp dày 8mm', brand: 'Newsky' },
+                        { name: 'Phòng khách, bếp', spec: 'Gạch Granite nhân tạo 600x600', brand: 'Changyih' },
+                        { name: 'Phòng vệ sinh, ban công', spec: 'Gạch Granite nhân tạo nhám 300x300', brand: 'Changyih' },
+                    ]
+                },
+                {
+                    category: 'Tường & Trần',
+                    items: [
+                        { name: 'Tường nội thất', spec: 'Sơn nước', brand: 'Jotun' },
+                        { name: 'Tường phòng vệ sinh', spec: 'Gạch Granite nhân tạo 300x600', brand: 'Changyih' },
+                        { name: 'Trần', spec: 'Thạch cao, sơn nước', brand: 'Vĩnh Tường/Lafarge, Jotun' },
+                    ]
+                },
+                {
+                    category: 'Cửa',
+                    items: [
+                        { name: 'Cửa chính', spec: 'Cửa gỗ công nghiệp chống cháy', brand: 'An Cường/Trường Thành' },
+                        { name: 'Cửa phòng ngủ', spec: 'Cửa gỗ công nghiệp', brand: 'An Cường/Trường Thành' },
+                        { name: 'Khóa cửa chính', spec: 'Khóa từ thông minh 4 chức năng', brand: 'Hafele/Yale' },
+                    ]
+                },
+                {
+                    category: 'Thiết Bị Vệ Sinh',
+                    items: [
+                        { name: 'Bàn cầu, chậu rửa, vòi', spec: 'Gói thiết bị cao cấp', brand: 'Duravit/Hansgrohe' },
+                        { name: 'Vách kính phòng tắm', spec: 'Kính cường lực', brand: 'BM Window' },
+                        { name: 'Quạt hút mùi', spec: 'Âm trần', brand: 'KDK/Panasonic' },
+                    ]
+                },
+                {
+                    category: 'Bếp & Điện',
+                    items: [
+                        { name: 'Tủ bếp', spec: 'Tủ bếp trên và dưới, mặt đá Granite', brand: 'An Cường/Trường Thành' },
+                        { name: 'Thiết bị điện', spec: 'Công tắc, ổ cắm', brand: 'Panasonic/Schneider' },
+                        { name: 'Hệ thống Intercom', spec: 'Chuông cửa có hình', brand: 'Commax/Panasonic' },
+                    ]
+                }
+            ];
+            
+            // Price Chart
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['MT Eastmark City', 'Vinhomes Grand Park', 'The Global City', 'Thủ Thiêm'],
+                    datasets: [{
+                        label: 'Giá bán dự kiến (triệu/m²)',
+                        data: [45, 70, 120, 140],
+                        backgroundColor: [
+                            '#2563eb',
+                            '#93c5fd',
+                            '#93c5fd',
+                            '#93c5fd',
+                        ],
+                        borderColor: [
+                            '#1e40af',
+                            '#60a5fa',
+                            '#60a5fa',
+                            '#60a5fa',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Giá bán tham khảo tại TP. Thủ Đức (Cuối 2025)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Triệu VNĐ / m²'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Cash Flow Chart
+            const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
+            let cashFlowChart = new Chart(cashFlowCtx, {
+                type: 'line',
+                data: {
+                    labels: ['HĐ Cọc', 'HĐMB Công Chứng', 'Nhận Sổ Hồng'],
+                    datasets: [{
+                        label: 'Dòng tiền thanh toán (tỷ VNĐ)',
+                        data: [0.493, 3.121, 3.285], // Initial data
+                        borderColor: '#1e40af',
+                        backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Lũy kế (tỷ VNĐ)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Product Mix Chart
+            const productMixCtx = document.getElementById('productMixChart').getContext('2d');
+            new Chart(productMixCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1PN+1 (63-65m²)', '2PN (73-80m²)', '3PN (96-100m²)', 'Duplex & Shophouse'],
+                    datasets: [{
+                        label: 'Cơ cấu sản phẩm',
+                        data: [25, 55, 15, 5],
+                        backgroundColor: ['#60a5fa', '#2563eb', '#1d4ed8', '#dbeafe'],
+                        hoverOffset: 4
+                    }]
+                },
+                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                    }
+                }
+            });
+
+            // Price Calculator
+            const apartmentAreaInput = document.getElementById('apartmentArea');
+            const pricePerSqmInput = document.getElementById('pricePerSqm');
+            const totalPriceEl = document.getElementById('totalPrice');
+            const initialPaymentEl = document.getElementById('initialPayment');
+            const loanAmountEl = document.getElementById('loanAmount');
+            const finalPaymentEl = document.getElementById('finalPayment');
+
+            function calculatePrice() {
+                const area = parseFloat(apartmentAreaInput.value) || 0;
+                const pricePerSqm = parseFloat(pricePerSqmInput.value) || 0;
+                const total = (area * pricePerSqm) / 1000; // to billions
+
+                const initial = total * 0.15;
+                const loan = total * 0.80;
+                const final = total * 0.05;
+                
+                totalPriceEl.textContent = `${total.toFixed(3).replace('.', ',')} tỷ`;
+                initialPaymentEl.textContent = `${initial.toFixed(3).replace('.', ',')} tỷ`;
+                loanAmountEl.textContent = `${loan.toFixed(3).replace('.', ',')} tỷ`;
+                finalPaymentEl.textContent = `${final.toFixed(3).replace('.', ',')} tỷ`;
+
+                // Update cash flow chart
+                cashFlowChart.data.datasets[0].data = [initial, initial + loan, total];
+                cashFlowChart.update();
+            }
+            
+            apartmentAreaInput.addEventListener('input', calculatePrice);
+            pricePerSqmInput.addEventListener('input', calculatePrice);
+            calculatePrice(); // Initial calculation
+
+            // Apartment Tabs
+            const apartmentTabs = document.getElementById('apartment-tabs');
+            const apartmentDetails = document.getElementById('apartment-details');
+            function updateApartmentDetails(type) {
+                const data = apartmentData[type];
+                apartmentDetails.innerHTML = `
+                    <h4 class="text-lg font-semibold mb-2">${data.title}</h4>
+                    <p class="text-gray-600 mb-3">${data.description}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${data.features.map(f => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${f}</span>`).join('')}
+                    </div>
+                `;
+            }
+            apartmentTabs.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    apartmentTabs.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    updateApartmentDetails(e.target.dataset.type);
+                }
+            });
+            updateApartmentDetails('1pn');
+
+            // Payment Tabs
+            const paymentTabs = document.getElementById('payment-tabs');
+            const paymentDetails = document.getElementById('payment-details');
+            function updatePaymentDetails(type) {
+                const data = paymentData[type];
+                let stepsHtml = data.steps.map(step => `
+                    <div class="flex items-center justify-between p-3 border-b border-gray-200">
+                        <span class="text-gray-600">${step.stage}</span>
+                        <span class="font-bold text-blue-700">${step.percentage}</span>
+                    </div>
+                `).join('');
+                paymentDetails.innerHTML = `
+                    <h4 class="text-lg font-semibold mb-2">${data.title}</h4>
+                    <p class="text-gray-600 mb-4">${data.description}</p>
+                    <div class="border border-gray-200 rounded-md">${stepsHtml}</div>
+                `;
+            }
+            paymentTabs.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    paymentTabs.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    updatePaymentDetails(e.target.dataset.type);
+                }
+            });
+            updatePaymentDetails('pttt1');
+
+            // Q&A List
+            const qaList = document.getElementById('qa-list');
+            const qaSearch = document.getElementById('qaSearch');
+            function renderQAList(filter = '') {
+                const filteredData = qaData.filter(item => 
+                    item.q.toLowerCase().includes(filter.toLowerCase()) || 
+                    item.a.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredData.length === 0) {
+                    qaList.innerHTML = `<p class="text-gray-500">Không tìm thấy kết quả.</p>`;
+                    return;
+                }
+
+                qaList.innerHTML = filteredData.map(item => `
+                    <div class="border-b pb-3">
+                        <p class="font-semibold text-blue-800">${item.q}</p>
+                        <p class="text-gray-600 mt-1">${item.a}</p>
+                    </div>
+                `).join('');
+            }
+            qaSearch.addEventListener('input', (e) => {
+                renderQAList(e.target.value);
+            });
+            renderQAList();
+            
+            // Handover Materials
+            const materialsContainer = document.getElementById('handover-materials');
+            materialsContainer.innerHTML = handoverData.map(category => `
+                <div>
+                    <h4 class="text-lg font-semibold text-blue-800 border-b-2 border-blue-200 pb-2 mb-3">${category.category}</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-3">
+                        ${category.items.map(item => `
+                            <div class="flex justify-between border-b pb-1">
+                                <span class="text-gray-600">${item.name}:</span>
+                                <span class="font-semibold text-right">${item.brand}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Risk Radar Chart
+            const riskRadarCtx = document.getElementById('riskRadarChart').getContext('2d');
+            new Chart(riskRadarCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Pháp Lý',
+                        'Thị Trường',
+                        'Tiến Độ XD',
+                        'Tài Chính (Lãi suất)',
+                        'Vận Hành'
+                    ],
+                    datasets: [{
+                        label: 'Mức độ rủi ro (1 = Thấp)',
+                        data: [1, 3, 2, 3, 2],
+                        fill: true,
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgb(37, 99, 235)',
+                        pointBackgroundColor: 'rgb(37, 99, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(37, 99, 235)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                }
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+
+            // Nav link active state
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
+
